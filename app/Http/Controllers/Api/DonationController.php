@@ -38,10 +38,17 @@ class DonationController extends Controller
         ], 200);
     }
 
-    public function test()
+    // get image
+    public function getImage($id)
     {
-        $donations = Donation::all();
-        return view('donation', compact('donations'));
+        $donation = Donation::find($id);
+        if (!$donation) {
+            return response()->json(['error' => 'Donation not found'], 404);
+        }
+        return response()->json([
+            'status' => 'success',
+            'data' => $donation
+        ], 200);
     }
 
     public function showDonationsByUser(Request $request)
@@ -73,6 +80,9 @@ class DonationController extends Controller
         if (!$campaign) {
             return response()->json(['error' => 'Campaign not found'], 404);
         }
+
+        // echo config('app.timezone');
+
         return response()->json([
             'status' => 'success',
             'data' => $campaign

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,5 +44,10 @@ class Campaign extends Model
     public function donors()
     {
         return $this->hasMany(Donation::class); // Asumsi donor berasal dari model Donation
+    }
+
+    protected function getImageAttribute($value)
+    {
+        return url('storage/campaigns/' . $value);
     }
 }
