@@ -27,14 +27,12 @@ class DonationController extends Controller
         //             return $campaign;
         //         })->paginate(6);
         // });
-        $campaigns = Cache::remember('campaigns', 300, function () {
-            return Campaign::orderBy('created_at', 'desc')->paginate(6);
-        });
+        // $user = DB::connection('mysql')->table('users')->where('id', Auth::id())->first();
         
-        
+        $campaigns = DB::connection('donasi')->table('donations')->get();
         return response()->json([
             'status' => 'success',
-            'data' => $campaigns
+            'data'   => $campaigns
         ], 200);
     }
 
@@ -52,26 +50,26 @@ class DonationController extends Controller
     }
 
     public function showDonationsByUser(Request $request)
-{
-    // Ambil user dari koneksi 'mysql'
-    $user = DB::connection('mysql')->table('users')
-        ->where('id', Auth::id())
-        ->first();
+    {
+        // Ambil user dari koneksi 'mysql'
+        $user = DB::connection('mysql')->table('users')
+            ->where('id', Auth::id())
+            ->first();
 
-    if (!$user) {
-        return response()->json(['error' => 'User not found'], 404);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        // Ambil semua data donation dari koneksi 'donasi' berdasarkan user_id
+        $donations = DB::connection('donasi')->table('donations')
+            ->where('user_id', $user->id)
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $donations
+        ], 200);
     }
-
-    // Ambil semua data donation dari koneksi 'donasi' berdasarkan user_id
-    $donations = DB::connection('donasi')->table('donations')
-        ->where('user_id', $user->id)
-        ->get();
-
-    return response()->json([
-        'status' => 'success',
-        'data'   => $donations
-    ], 200);
-}
 
     // get campaign by id
     public function show($id)
@@ -89,16 +87,16 @@ class DonationController extends Controller
         ], 200);
     }
 
-  
+
     public function store(Request $request)
     {
-     
+
         $validated = $request->validate([
             'amount'      => 'required|numeric',
             'proof_image' => 'required|',
             'campaign_id' => 'required|exists:donasi.campaigns,id', // Sesuaikan koneksi donasi
         ]);
-    
+
         // image upload
         $proofImage = $request->file('proof_image');
         $proofImage->storeAs('public/donations', $proofImage->hashName());
@@ -106,11 +104,12 @@ class DonationController extends Controller
 
         // Ambil user dari koneksi 'mysql'
         $user = DB::connection('mysql')->table('users')->where('id', Auth::id())->first();
+
         
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
-    
+
         // Simpan data ke dalam tabel 'donations' di koneksi 'donasi'
         $donationId = DB::connection('donasi')->table('donations')->insertGetId([
             'user_id'     => $user->id,
@@ -120,7 +119,7 @@ class DonationController extends Controller
             'created_at'  => now(),
             'updated_at'  => now(),
         ]);
-    
+
         // Ambil data donation yang baru dibuat
         $donation = DB::connection('donasi')->table('donations')->where('id', $donationId)->first();
 
@@ -129,10 +128,5 @@ class DonationController extends Controller
             'status' => 'success',
             'data'   => $donation
         ], 201);
-        
-
     }
-    
-    
-
 }
