@@ -16,25 +16,38 @@ use Illuminate\Support\Facades\Validator;
 class DonationController extends Controller
 {
     // get all donations
-    public function index()
+    public function index(Request $request)
     {
-        // $campaigns = Cache::remember('campaigns', 300, function () {
-        //     return Campaign::with('category')
-        //         ->orderBy('created_at', 'desc')
-        //         ->get()
-        //         ->map(function ($campaign) {
-        //             $campaign->days_left = Carbon::now()->diffInDays(Carbon::parse($campaign->expired), true);
-        //             return $campaign;
-        //         })->paginate(6);
-        // });
-        // $user = DB::connection('mysql')->table('users')->where('id', Auth::id())->first();
-        
-        $campaigns = DB::connection('donasi')->table('donations')->get();
+ 
+        $query = DB::connection('donasi')->table('campaign');
+
+        // validate query parameters
+        $validator = Validator::make($request->all(), [
+            'search' => 'string|nullable',
+            'category_id' => 'integer|exists:donasi.categories,id|nullable',
+        ]);
+
+        // 1) Searching: cari pada kolom title atau description
+        if ($request->filled('search')) {
+        $search = $request->get('search');
+        $query->where(function($q) use ($search) {
+            $q->where('title', 'like', "%{$search}%")
+              ->orWhere('description', 'like', "%{$search}%");
+        });
+
+        // 2) Filter by category
+        if ($request->filled('category_id')) {
+        $query->where('category_id', $request->get('category_id'));
+        }
+
+        $campaign = $query->get()->paginate(4);
         return response()->json([
             'status' => 'success',
-            'data'   => $campaigns
+            'data'   => $campaign
         ], 200);
     }
+    }
+            
 
     // get image
     public function getImage($id)

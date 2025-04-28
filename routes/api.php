@@ -25,6 +25,9 @@ Route::controller(ZakatController::class)->group(function () {
     Route::post('hitung-emas', 'hitungZakatEmas');
     Route::post('hitung-perak', 'hitungZakatPerak');
     Route::post('hitung-perdagangan', 'hitungZakatPerdagangan');
+    Route::post('hitung-penghasilan-bulan', 'hitungZakatPenghasilanBulan');
+    Route::post('hitung-penghasilan-tahunan', 'hitungZakatPenghasilanTahunan');
+
 });
 
 
