@@ -16,37 +16,14 @@ use Illuminate\Support\Facades\Validator;
 class DonationController extends Controller
 {
     // get all donations
-    public function index(Request $request)
-    {
- 
-        $query = DB::connection('donasi')->table('campaign');
-
-        // validate query parameters
-        $validator = Validator::make($request->all(), [
-            'search' => 'string|nullable',
-            'category_id' => 'integer|exists:donasi.categories,id|nullable',
-        ]);
-
-        // 1) Searching: cari pada kolom title atau description
-        if ($request->filled('search')) {
-        $search = $request->get('search');
-        $query->where(function($q) use ($search) {
-            $q->where('title', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
-        });
-
-        // 2) Filter by category
-        if ($request->filled('category_id')) {
-        $query->where('category_id', $request->get('category_id'));
-        }
-
-        $campaign = $query->get()->paginate(4);
+   public function index()
+   {
+        $campaign = DB::connection('donasi')->table('campaigns')->get();
         return response()->json([
             'status' => 'success',
             'data'   => $campaign
         ], 200);
-    }
-    }
+   }
             
 
     // get image
