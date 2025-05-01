@@ -199,5 +199,49 @@ class ZakatController extends Controller
         } 
         
     }
+
+    // public function transaksi(Request $request)
+    // {
+    //     // cek user login
+    //     if (!$request->user()) {
+    //         return response()->json(['error' => 'Unauthorized'], 401);
+    //     }
+
+    //     $user = DB::connection('mysql')->table('users')->where('id', Auth::id())->first();
+
+        
+    //     if (!$user) {
+    //         return response()->json(['error' => 'User not found'], 404);
+    //     }
+
+    //     $request->validate([
+    //         'notransaksi' => 'required|numeric',
+    //         'nama_user' => 'required|string',
+    //         'jenis zakat' => 'required|string',
+    //         'jumlah_zakat' => 'required|numeric',
+    //         'metode_bayar' => 'required|string',
+    //         'id_user' => 'required|numeric',
+    //     ]);
+
+    //     $file = $request->file('bukti_transfer');
+    //     $filename = time() . '.' . $file->getClientOriginalExtension();
+    //     $path = file()->storeAs('img/bukti_transfer', $filename, 'public');
+
+    //     $no_transaksi = now()->format()
+
+    //     $query = DB::connection('zakat')->table('transaksi')->insert([
+    //         'notransaksi' => $request->notransaksi,
+    //         'nama_user' => $request->nama_user,
+    //         'jenis_zakat' => $request->jenis_zakat,
+    //         'jumlah_zakat' => $request->jumlah_zakat,
+    //         'metode_bayar' => $request->metode_bayar,
+    //         'id_user' => $request->user,
+    //     ]);
+
+        
+
+        
+    
+    // }
     
 }

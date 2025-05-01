@@ -39,10 +39,28 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL_DONASI') . '/storage',
             'visibility' => 'public',
             'throw' => false,
         ],
+
+        'donasi' => [
+            'driver' => 'local',
+            'root' => base_path('../app_donasi/public'),
+            'url' => env('APP_URL_DONASI') . '/storage/donasi', // ini URL ngikut APP_URL project pertama
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        'mualaf' => [
+            'driver' => 'local',
+            'root' => base_path('../mualaf/public'),
+            'url' => env('APP_URL_MUALAF') . '/storage/mualaf', // ini URL ngikut APP_URL project pertama
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+
 
         's3' => [
             'driver' => 's3',

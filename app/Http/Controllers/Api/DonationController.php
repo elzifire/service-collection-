@@ -12,19 +12,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class DonationController extends Controller
 {
     // get all donations
-   public function index()
-   {
+    public function index()
+    {
         $campaign = DB::connection('donasi')->table('campaigns')->get();
         return response()->json([
             'status' => 'success',
             'data'   => $campaign
         ], 200);
-   }
-            
+    }
+
 
     // get image
     public function getImage($id)
@@ -38,28 +39,7 @@ class DonationController extends Controller
             'data' => $donation
         ], 200);
     }
-
-    public function showDonationsByUser(Request $request)
-    {
-        // Ambil user dari koneksi 'mysql'
-        $user = DB::connection('mysql')->table('users')
-            ->where('id', Auth::id())
-            ->first();
-
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-
-        // Ambil semua data donation dari koneksi 'donasi' berdasarkan user_id
-        $donations = DB::connection('donasi')->table('donations')
-            ->where('user_id', $user->id)
-            ->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data'   => $donations
-        ], 200);
-    }
+    
 
     // get campaign by id
     public function show($id)
@@ -83,19 +63,21 @@ class DonationController extends Controller
 
         $validated = $request->validate([
             'amount'      => 'required|numeric',
-            'proof_image' => 'required|',
+            'proof_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'campaign_id' => 'required|exists:donasi.campaigns,id', // Sesuaikan koneksi donasi
         ]);
 
         // image upload
+        // $proofImage = $request->file('proof_image');
+        // $proofImage->storeAs('public/donations', $proofImage->hashName(), 'donasi');
         $proofImage = $request->file('proof_image');
-        $proofImage->storeAs('public/donations', $proofImage->hashName());
+        $proofImage->storeAs('donations', $proofImage->hashName(), 'donasi');
 
 
         // Ambil user dari koneksi 'mysql'
         $user = DB::connection('mysql')->table('users')->where('id', Auth::id())->first();
 
-        
+
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
@@ -118,5 +100,22 @@ class DonationController extends Controller
             'status' => 'success',
             'data'   => $donation
         ], 201);
+    }
+
+    // get all donations by user
+    public function donated()
+    {
+        $userId = DB::connection('mysql')->table('users')->where('id', Auth::id())->first();
+
+    if (!$userId) {
+        return response()->json(['error' => 'User not found'], 404);
+    }
+
+    $donations = DB::connection('donasi')->table('donations')
+        ->where('user_id', $userId->id)
+        ->get();
+
+    // Menggunakan response()->json untuk langsung mengonversi data ke JSON
+    return response()->json($donations);
     }
 }

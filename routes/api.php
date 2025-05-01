@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ZakatController;
 use App\Http\Controllers\Api\DonationController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Api\MualafController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -38,7 +39,14 @@ Route::prefix('donations')->group(function () {
     // Route::post('/', [DonationController::class, 'store'])->middleware('auth:sanctum');
     // Route::post('/', function (Request $request) {
     // })->middleware('auth:sanctum');
+    Route::get('/donated', [DonationController::class, 'donated'])->middleware('auth:sanctum');
     Route::post('/', [DonationController::class, 'store'])->middleware('auth:sanctum');
-    Route::get('/ShowDonationsByUser', [DonationController::class, 'showDonationsByUser'])->middleware('auth:sanctum');
     Route::get('/getImage/{id}', [DonationController::class, 'getImage']);
 });
+
+Route::post('/mualaf', [MualafController::class, 'store']);
+// ->middleware('throttle:mualaf');
+
+// Route::get('/donatur', function () {
+    
+// })->middleware('auth:sanctum');
