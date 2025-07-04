@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ZakatController;
 use App\Http\Controllers\Api\DonationController;
 use App\Http\Controllers\Api\MualafController;
+use Illuminate\Support\Facades\Mail;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -40,3 +41,12 @@ Route::prefix('donations')->group(function () {
 });
 
 Route::post('/mualaf', [MualafController::class, 'store']);
+
+Route::get('/test-email', function () {
+    Mail::raw('Test email from Laravel', function ($message) {
+        $message->to('test@example.com')
+                ->subject('Test Email')
+                ->from('zenscilla@gmail.com');
+    });
+    return 'Email sent!';
+});
