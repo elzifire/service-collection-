@@ -22,19 +22,30 @@ class ResetPasswordNotification extends Notification
 
     public function toMail($notifiable)
     {
-        $url = sprintf(
+        $urlApp = sprintf(
             'masjiduika://auth/reset-password?token=%s&email=%s',
             $this->token,
             urlencode($notifiable->email)
         );
 
-        Log::info('Reset Password Notification: Generating URL', ['url' => $url]);
+        $urlWeb = sprintf(
+            'https://masjid.uika-bogor.ac.id/service/reset-password?token=%s&email=%s',
+            $this->token,
+            urlencode($notifiable->email)
+        );
+
+        Log::info('Reset Password Notification: Generating URL', [
+            'url_web' => $urlWeb,
+            'url_app' => $urlApp
+        ]);
 
         return (new MailMessage)
             ->subject('Reset Password')
             ->greeting('Halo!')
             ->line('Anda menerima email ini karena kami menerima permintaan reset password untuk akun Anda.')
-            ->action('Reset Password', $url)
+            ->action('Reset via Aplikasi', $urlApp)
+            ->line('Atau jika Anda membuka email ini di browser, silakan klik tombol berikut:')
+            ->action('Reset via Website', $urlWeb)
             ->line('Jika Anda tidak meminta reset password, abaikan email ini.')
             ->salutation('Terima kasih, Tim Masjid UIKA');
     }
