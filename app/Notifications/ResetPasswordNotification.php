@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Log;
 
 class ResetPasswordNotification extends Notification
 {
@@ -26,6 +27,8 @@ class ResetPasswordNotification extends Notification
             $this->token,
             urlencode($notifiable->email)
         );
+
+        Log::info('Reset Password Notification: Generating URL', ['url' => $url]);
 
         return (new MailMessage)
             ->subject('Reset Password')
