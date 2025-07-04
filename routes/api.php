@@ -29,7 +29,6 @@ Route::controller(ZakatController::class)->group(function () {
     Route::post('hitung-perdagangan', 'hitungZakatPerdagangan');
     Route::post('hitung-penghasilan-bulan', 'hitungZakatPenghasilanBulan');
     Route::post('hitung-penghasilan-tahunan', 'hitungZakatPenghasilanTahunan');
-
 });
 
 
