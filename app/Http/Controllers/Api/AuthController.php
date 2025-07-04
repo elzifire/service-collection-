@@ -120,15 +120,15 @@ class AuthController extends Controller
     public function forgotPassword(Request $request)
     {
         try {
+            Log::info('Forgot Password: Incoming request', ['request' => $request->all()]);
+
             $validated = $request->validate([
                 'email' => 'required|email|exists:users,email',
             ]);
 
             Log::info('Forgot Password: Attempting to send reset link for email: ' . $validated['email']);
 
-            $status = Password::sendResetLink(
-                $validated
-            );
+            $status = Password::sendResetLink($validated);
 
             Log::info('Forgot Password: Send reset link status: ' . $status);
 
@@ -149,7 +149,7 @@ class AuthController extends Controller
             Log::error('Forgot Password Validation Error: ' . json_encode($e->errors()));
             return $this->apiResponse(
                 'error',
-                'Validasi gagal',
+                'Validasi gagal: ' . json_encode($e->errors()),
                 $e->errors(),
                 422
             );
