@@ -1,24 +1,18 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\DonationController;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
+use App\Models\User;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/donations', [DonationController::class, 'test']);
-
-Route::get('/reset-password', function (Illuminate\Http\Request $request) {
+Route::get('/reset-password', function (Request $request) {
     $token = $request->query('token');
     $email = $request->query('email');
 
     return view('auth.reset-password', compact('token', 'email'));
 })->name('password.reset');
 
-use Illuminate\Support\Facades\Password;
-
-Route::post('/reset-password', function (Illuminate\Http\Request $request) {
+Route::post('/reset-password', function (Request $request) {
     $request->validate([
         'token' => 'required',
         'email' => 'required|email',
@@ -35,7 +29,14 @@ Route::post('/reset-password', function (Illuminate\Http\Request $request) {
     );
 
     if ($status == Password::PASSWORD_RESET) {
-        return redirect('/login')->with('status', __($status));
+
+        // Kirim email pemberitahuan
+        Mail::raw('Password Anda berhasil diubah.', function ($message) use ($request) {
+            $message->to($request->email)
+                    ->subject('Password Berhasil Diubah - Masjid UIKA');
+        });
+
+        return view('auth.reset-password-success');
     }
 
     return back()->withErrors(['email' => [__($status)]]);
