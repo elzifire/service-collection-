@@ -21,6 +21,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::middleware('auth:sanctum')->group(function () {
     // Route::get('/user', [User::class, 'index']);
     Route::get('/user/{id}', [User::class, 'show']);
+    Route::put('/user/{id}', [User::class, 'update']);
 });
 Route::controller(ZakatController::class)->group(function () {
     Route::post('hitung-emas', 'hitungZakatEmas');
