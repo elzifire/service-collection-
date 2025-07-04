@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('campaign_id');
             $table->unsignedBigInteger('status_id')->default(1); // Pending
             $table->decimal('amount', 15, 2);
-            $table->string('proof_image');
+            $table->string('proof_image');  
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');

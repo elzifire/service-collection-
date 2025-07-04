@@ -19,6 +19,9 @@ class Donation extends Model
         'status_id',
         'amount',
         'proof_image',
+        'name',
+        'phone_number',
+        'donation_type',
     ];
 
     // Relasi ke User; karena User model telah disetting koneksi 'mysql',

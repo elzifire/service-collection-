@@ -36,11 +36,8 @@ Route::controller(ZakatController::class)->group(function () {
 Route::prefix('donations')->group(function () {
     Route::get('/', [DonationController::class, 'index']);
     Route::get('/{id}', [DonationController::class, 'show']);
-    // Route::post('/', [DonationController::class, 'store'])->middleware('auth:sanctum');
-    // Route::post('/', function (Request $request) {
-    // })->middleware('auth:sanctum');
     Route::get('/donated', [DonationController::class, 'donated'])->middleware('auth:sanctum');
-    Route::post('/', [DonationController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('/', [DonationController::class, 'store']); // Tanpa middleware auth:sanctum
     Route::get('/getImage/{id}', [DonationController::class, 'getImage']);
 });
 

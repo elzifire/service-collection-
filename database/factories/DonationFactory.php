@@ -20,12 +20,17 @@ class DonationFactory extends Factory
      */
     public function definition(): array
     {
+        $donationType = fake()->randomElement(['umum', 'terdaftar']);
+
         return [
-            'user_id' => User::factory(), // Buat user baru jika tidak ada
-            'campaign_id' => Campaign::factory(), // Buat campaign baru jika tidak ada
-            'status_id' => Status::inRandomOrder()->first()?->id ?? 1, // Pilih status acak atau default ke pending
-            'amount' => fake()->randomFloat(2, 10000, 1000000), // Donasi antara 10 ribu - 1 juta
-            'proof_image' => fake()->imageUrl(), // Gambar bukti pembayaran
+            'user_id' => $donationType === 'terdaftar' ? User::inRandomOrder()->first()?->id : null,
+            'campaign_id' => Campaign::inRandomOrder()->first()?->id ?? 1,
+            'status_id' => Status::inRandomOrder()->first()?->id ?? 1,
+            'amount' => fake()->randomFloat(2, 10000, 1000000),
+            'proof_image' => fake()->imageUrl(),
+            'name' => $donationType === 'umum' ? fake()->name() : null,
+            'phone_number' => $donationType === 'umum' ? fake()->phoneNumber() : null,
+            'donation_type' => $donationType,
         ];
     }
 }

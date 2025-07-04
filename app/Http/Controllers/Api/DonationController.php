@@ -60,42 +60,55 @@ class DonationController extends Controller
 
     public function store(Request $request)
     {
-
-        $validated = $request->validate([
-            'amount'      => 'required|numeric',
+        // Validasi dasar untuk semua donasi
+        $rules = [
+            'amount'      => 'required|numeric|min:1',
             'proof_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'campaign_id' => 'required|exists:donasi.campaigns,id', // Sesuaikan koneksi donasi
-        ]);
+            'campaign_id' => 'required|exists:donasi.campaigns,id',
+        ];
 
-        // image upload
-        // $proofImage = $request->file('proof_image');
-        // $proofImage->storeAs('public/donations', $proofImage->hashName(), 'donasi');
-        $proofImage = $request->file('proof_image');
-        $proofImage->storeAs('donations', $proofImage->hashName(), 'donasi');
-
-
-        // Ambil user dari koneksi 'mysql'
-        $user = DB::connection('mysql')->table('users')->where('id', Auth::id())->first();
-
-
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+        // Tambah validasi untuk donasi umum
+        if (!Auth::check()) {
+            $rules['name'] = 'required|string|max:255';
+            $rules['phone_number'] = 'required|string|max:20';
         }
 
-        // Simpan data ke dalam tabel 'donations' di koneksi 'donasi'
-        $donationId = DB::connection('donasi')->table('donations')->insertGetId([
-            'user_id'     => $user->id,
-            'campaign_id' => $validated['campaign_id'],
-            'amount'      => $validated['amount'],
-            'proof_image' => $proofImage->hashName(),
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ]);
+        $validated = $request->validate($rules);
 
-        // Ambil data donation yang baru dibuat
+        // Simpan gambar bukti donasi
+        $proofImage = $request->file('proof_image');
+        $proofImageName = $proofImage->hashName();
+        $proofImage->storeAs('donations', $proofImageName, 'donasi');
+
+        // Data dasar untuk donasi
+        $donationData = [
+            'campaign_id'    => $validated['campaign_id'],
+            'amount'        => $validated['amount'],
+            'proof_image'   => $proofImageName,
+            'donation_type' => Auth::check() ? 'terdaftar' : 'umum',
+            'created_at'    => now(),
+            'updated_at'    => now(),
+        ];
+
+        // Cek apakah user terautentikasi (terdaftar)
+        if (Auth::check()) {
+            $user = DB::connection('mysql')->table('users')->where('id', Auth::id())->first();
+            if (!$user) {
+                return response()->json(['error' => 'User tidak ditemukan'], 404);
+            }
+            $donationData['user_id'] = $user->id;
+        } else {
+            // Untuk donasi umum, simpan nama dan nomor telepon
+            $donationData['name'] = $validated['name'];
+            $donationData['phone_number'] = $validated['phone_number'];
+        }
+
+        // Simpan donasi ke database
+        $donationId = DB::connection('donasi')->table('donations')->insertGetId($donationData);
+
+        // Ambil data donasi yang baru dibuat
         $donation = DB::connection('donasi')->table('donations')->where('id', $donationId)->first();
 
-        // mengembalikan response 2 variable pertama $donationId dan $donation
         return response()->json([
             'status' => 'success',
             'data'   => $donation
