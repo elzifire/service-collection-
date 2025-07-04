@@ -9,9 +9,9 @@ use App\Http\Controllers\Api\DonationController;
 use App\Http\Controllers\Api\MualafController;
 use Illuminate\Support\Facades\Mail;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Route::get('/user', function (Request $request) {
+//     return $request->user();
+// })->middleware('auth:sanctum');
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

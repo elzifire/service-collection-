@@ -15,7 +15,7 @@ class UserController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:api', only: ['update']),
+            new Middleware('auth:sanctum', only: ['update']), // Ganti auth:api ke auth:sanctum
         ];
     }
 
@@ -76,6 +76,16 @@ class UserController extends Controller implements HasMiddleware
     {
         try {
             $user = User::query()->findOrFail($id);
+
+            // Pastiin user yang login sama dengan yang di-update
+            if ($user->id !== auth('sanctum')->id()) {
+                return $this->apiResponse(
+                    'error',
+                    'Unauthorized',
+                    null,
+                    403
+                );
+            }
 
             $validated = $request->validate([
                 'name' => 'sometimes|string|max:255|min:2',
