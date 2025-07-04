@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('donations', function (Blueprint $table) {
+        Schema::connection('donasi')->table('donations', function (Blueprint $table) {
             // Drop foreign key dulu
             $table->dropForeign(['user_id']);
             // Ubah user_id jadi nullable
@@ -19,7 +19,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::table('donations', function (Blueprint $table) {
+        Schema::connection('donasi')->table('donations', function (Blueprint $table) {
             // Drop foreign key
             $table->dropForeign(['user_id']);
             // Kembalikan user_id jadi non-nullable
