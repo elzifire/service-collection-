@@ -34,12 +34,14 @@ class AuthController extends Controller
                 'name' => 'required|string|max:255|min:2',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|string|min:6|confirmed',
+                'image' => 'nullable',
             ]);
 
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
+                'image' => $validated['image'] ?? null,
             ]);
 
             return $this->apiResponse(
