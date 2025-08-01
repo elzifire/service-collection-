@@ -140,30 +140,36 @@ class ZakatController extends Controller
 
 
     public function hitungZakatPenghasilanTahun(Request $request)
-    {
-        $request->validate([
-            'gaji' => 'required|numeric',
-            'penghasilan_lain' => 'required|numeric',
-        ]);
+{
+    $request->validate([
+        'gaji' => 'required|numeric|min:0',
+        'penghasilan_lain' => 'required|numeric|min:0',
+    ]);
 
-        $gaji = $request->gaji;
-        $penghasilan_lain = $request->penghasilan_lain;
+    $gaji = $request->gaji;
+    $penghasilan_lain = $request->penghasilan_lain;
 
-        $total = ($gaji + $penghasilan_lain) * 12 * 0.025;
+    // Hitung total penghasilan tahunan
+    $total_penghasilan = ($gaji + $penghasilan_lain) * 12;
 
-        if ($total >= 85685972) {
-            return response()->json([
-                'message' => `Zakat penghasilan pertahun $total`,
-                'total' => $total,
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'Zakat penghasilan anda belum mencapai nisab',
-                'total' => 0,
-            ]);
-        }
+    // Nisab tahunan
+    $nisab_tahunan = 85685972;
 
+    if ($total_penghasilan >= $nisab_tahunan) {
+        $zakat = $total_penghasilan * 0.025; // 2.5%
+        return response()->json([
+            'status' => 'Wajib Zakat',
+            'total_penghasilan' => $total_penghasilan,
+            'jumlah_zakat' => $zakat,
+        ], 200);
+    } else {
+        return response()->json([
+            'status' => 'Tidak Wajib Zakat',
+            'total_penghasilan' => $total_penghasilan,
+            'jumlah_zakat' => 0,
+        ], 200);
     }
+}
 
     public function ZakatMal(Request $request)
     {
