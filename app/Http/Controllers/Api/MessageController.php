@@ -57,7 +57,7 @@ class MessageController extends Controller
             ]);
 
             try {
-                Http::post('http://localhost:3001/api/broadcast', [
+                Http::post('http://127.0.0.1:3001/api/broadcast', [
                     'sender_id' => $msg->sender_id,
                     'receiver_id' => $msg->receiver_id,
                     'message' => $msg->message,
