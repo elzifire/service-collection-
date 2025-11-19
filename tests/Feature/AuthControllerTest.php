@@ -11,7 +11,7 @@ class AuthControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    /** @test */
+  
     public function user_can_register_successfully()
     {
         $data = [
@@ -49,7 +49,7 @@ class AuthControllerTest extends TestCase
                  ->assertJsonValidationErrors(['email']);
     }
 
-    /** @test */
+
     public function user_can_login_with_correct_credentials()
     {
         $password = 'password123';
@@ -70,7 +70,7 @@ class AuthControllerTest extends TestCase
                  ]);
     }
 
-    /** @test */
+
     public function user_cannot_login_with_invalid_credentials()
     {
         $response = $this->postJson('/api/login', [
@@ -84,7 +84,7 @@ class AuthControllerTest extends TestCase
                  ]);
     }
 
-    /** @test */
+
     public function authenticated_user_can_logout()
     {
         $user = User::factory()->create();

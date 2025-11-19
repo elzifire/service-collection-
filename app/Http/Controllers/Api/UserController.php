@@ -28,27 +28,49 @@ class UserController extends Controller implements HasMiddleware
         ], $httpCode);
     }
 
-    public function index()
-    {
-        try {
-            $users = User::query()
-                ->select('id', 'name', 'email', 'phone', 'created_at')
-                ->get();
+    // public function index()
+    // {
+    //     try {
+    //         $users = User::query()
+    //             ->select('id', 'name', 'email', 'phone', 'created_at')
+    //             ->get();
             
-            return $this->apiResponse(
-                'success',
-                'Data User Berhasil Diambil',
-                $users
-            );
-        } catch (\Exception $e) {
-            return $this->apiResponse(
-                'error',
-                'Data User Gagal Diambil',
-                null,
-                500
-            );
-        }
+    //         return $this->apiResponse(
+    //             'success',
+    //             'Data User Berhasil Diambil',
+    //             $users
+    //         );
+    //     } catch (\Exception $e) {
+    //         return $this->apiResponse(
+    //             'error',
+    //             'Data User Gagal Diambil',
+    //             null,
+    //             500
+    //         );
+    //     }
+    // }
+    public function index(Request $request)
+{
+    $loginId = $request->user()->id;
+
+    if ($loginId == 11) {
+        // Admin (id = 1) bisa lihat semua user
+        $users = User::where('id', '!=', $loginId)
+                     ->get(['id', 'name', 'email']);
+    } else {
+        // Selain admin, hanya bisa lihat user yang ada di allowedIds
+        $allowedIds = [11]; 
+        $users = User::whereIn('id', $allowedIds)
+                     ->where('id', '!=', $loginId)
+                     ->get(['id', 'name', 'email']);
     }
+
+    return response()->json([
+        'status' => 200,
+        'users' => $users
+    ]);
+}
+
 
     public function show($id)
     {

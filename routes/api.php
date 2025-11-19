@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ZakatController;
 use App\Http\Controllers\Api\DonationController;
 use App\Http\Controllers\Api\MualafController;
+use App\Http\Controllers\Api\FiqhController;
+use App\Http\Controllers\Api\MessageController;
 use Illuminate\Support\Facades\Mail;
 
 // Route::get('/user', function (Request $request) {
@@ -20,6 +22,7 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'show']);
     Route::put('/user/{id}', [UserController::class, 'update']);
 });
@@ -42,11 +45,17 @@ Route::prefix('donations')->group(function () {
 
 Route::post('/mualaf', [MualafController::class, 'store']);
 
-Route::get('/test-email', function () {
-    Mail::raw('Test email from Laravel', function ($message) {
-        $message->to('test@example.com')
-                ->subject('Test Email')
-                ->from('zenscilla@gmail.com');
-    });
-    return 'Email sent!';
-});
+Route::post('/fiqh', [FiqhController::class, 'index']);
+
+Route::post('/messages', [MessageController::class, 'store'])->middleware('auth:sanctum');
+
+Route::get('/messages', [MessageController::class, 'index'])->middleware('auth:sanctum');
+
+// Route::get('/test-email', function () {
+//     Mail::raw('Test email from Laravel', function ($message) {
+//         $message->to('test@example.com')
+//                 ->subject('Test Email')
+//                 ->from('zenscilla@gmail.com');
+//     });
+//     return 'Email sent!';
+// });
