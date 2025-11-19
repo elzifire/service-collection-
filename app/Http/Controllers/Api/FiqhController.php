@@ -26,7 +26,7 @@ class FiqhController extends Controller
                 "limit"   => $request->input("limit", 0),
             ];
 
-            $response = Http::post("http://localhost:8091/search-ai", $payload);
+            $response = Http::post("http://127.0.0.1:8091/search-ai", $payload);
 
             if ($response->failed()) {
                 return response()->json([
