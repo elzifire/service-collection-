@@ -56,7 +56,7 @@ class MessageController extends Controller
             ]);
 
             try {
-                Http::post('https://masjid.uika-bogor.ac.id/chat-api/broadcast', [
+                Http::post('https://masjid.uika-bogor.ac.id/api/broadcast', [
                     'sender_id' => $msg->sender_id,
                     'receiver_id' => $msg->receiver_id,
                     'message' => $msg->message,
