@@ -47,9 +47,9 @@ Route::post('/mualaf', [MualafController::class, 'store']);
 
 Route::post('/fiqh', [FiqhController::class, 'index']);
 
-Route::post('/messages', [MessageController::class, 'store'])->middleware('auth:sanctum');
+Route::post('/messages', [MessageController::class, 'store']);
 
-Route::get('/messages', [MessageController::class, 'index'])->middleware('auth:sanctum');
+Route::get('/messages', [MessageController::class, 'index']);
 
 // Route::get('/test-email', function () {
 //     Mail::raw('Test email from Laravel', function ($message) {
