@@ -38,38 +38,40 @@ class MessageController extends Controller
 
    public function store(Request $request)
 {
-    $request->validate([
-        'sender_id' => 'required|integer',
-        'receiver_id' => 'required|integer',
-        'message' => 'required|string',
-    ]);
+    logger()->info("Store() dipanggil dengan payload:", $request->all());
 
-    // if ($request->sender_id != $request->user()->id) {
-    //     return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
-    // }
+    $request->validate([
+        'sender_id'   => 'required|integer',
+        'receiver_id' => 'required|integer',
+        'message'     => 'required|string',
+    ]);
+    logger()->info("Validasi sukses untuk sender_id={$request->sender_id}, receiver_id={$request->receiver_id}");
 
     $result = DB::transaction(function () use ($request) {
+        logger()->info("Mulai transaksi DB untuk simpan pesan");
+
         $msg = Message::create([
-            'sender_id' => $request->sender_id,
+            'sender_id'   => $request->sender_id,
             'receiver_id' => $request->receiver_id,
-            'message' => $request->message,
+            'message'     => $request->message,
         ]);
+        logger()->info("Pesan berhasil disimpan ke DB dengan ID={$msg->id}");
 
         try {
-            // pakai curl untuk broadcast
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "https://masjid.uika-bogor.ac.id/chat-api/broadcast");
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                "Content-Type: application/json"
-            ]);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            $payload = [
                 'sender_id'   => $msg->sender_id,
                 'receiver_id' => $msg->receiver_id,
                 'message'     => $msg->message,
                 'created_at'  => $msg->created_at,
-            ]));
+            ];
+            logger()->info("Siap broadcast ke Node.js dengan payload:", $payload);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1:3001/api/broadcast");
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
 
             $response = curl_exec($ch);
             if (curl_errno($ch)) {
@@ -77,7 +79,7 @@ class MessageController extends Controller
             }
             curl_close($ch);
 
-            logger()->info("Broadcast response: " . $response);
+            logger()->info("Broadcast response dari Node.js: " . $response);
         } catch (\Exception $e) {
             logger()->error("Gagal broadcast ke Socket.IO: " . $e->getMessage());
         }
@@ -85,10 +87,13 @@ class MessageController extends Controller
         return $msg;
     });
 
+    logger()->info("Store() selesai, return response JSON");
+
     return response()->json([
         'status' => true,
-        'data' => $result
+        'data'   => $result
     ]);
 }
+
 
 }
