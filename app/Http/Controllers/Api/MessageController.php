@@ -44,9 +44,9 @@ class MessageController extends Controller
         'message' => 'required|string',
     ]);
 
-    if ($request->sender_id != $request->user()->id) {
-        return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
-    }
+    // if ($request->sender_id != $request->user()->id) {
+    //     return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+    // }
 
     $result = DB::transaction(function () use ($request) {
         $msg = Message::create([
