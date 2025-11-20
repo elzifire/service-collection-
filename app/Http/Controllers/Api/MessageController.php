@@ -13,7 +13,7 @@ class MessageController extends Controller
     public function index(Request $request)
     {
         $request->validate([
-            'friend_id' => 'required|integer|exists:users,id',
+            'friend_id' => 'required|integer',
         ]);
 
         $user = $request->user();
@@ -40,7 +40,7 @@ class MessageController extends Controller
 {
     $request->validate([
         'sender_id' => 'required|integer',
-        'receiver_id' => 'required|integer|exists:users,id',
+        'receiver_id' => 'required|integer',
         'message' => 'required|string',
     ]);
 
