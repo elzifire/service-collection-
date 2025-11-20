@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Http;
 
 class MessageController extends Controller
 {
-
     public function index(Request $request)
     {
         $request->validate([
@@ -57,7 +56,7 @@ class MessageController extends Controller
             ]);
 
             try {
-                Http::post('http://127.0.0.1:3001/api/broadcast', [
+                Http::post('https://masjid.uika-bogor.ac.id/chat-api/broadcast', [
                     'sender_id' => $msg->sender_id,
                     'receiver_id' => $msg->receiver_id,
                     'message' => $msg->message,
