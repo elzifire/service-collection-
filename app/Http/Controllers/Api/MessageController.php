@@ -36,42 +36,59 @@ class MessageController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'sender_id' => 'required|integer',
-            'receiver_id' => 'required|integer|exists:users,id',
-            'message' => 'required|string',
+   public function store(Request $request)
+{
+    $request->validate([
+        'sender_id' => 'required|integer',
+        'receiver_id' => 'required|integer|exists:users,id',
+        'message' => 'required|string',
+    ]);
+
+    if ($request->sender_id != $request->user()->id) {
+        return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+    }
+
+    $result = DB::transaction(function () use ($request) {
+        $msg = Message::create([
+            'sender_id' => $request->sender_id,
+            'receiver_id' => $request->receiver_id,
+            'message' => $request->message,
         ]);
 
-        if ($request->sender_id != $request->user()->id) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        try {
+            // pakai curl untuk broadcast
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "https://masjid.uika-bogor.ac.id/chat-api/broadcast");
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Content-Type: application/json"
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                'sender_id'   => $msg->sender_id,
+                'receiver_id' => $msg->receiver_id,
+                'message'     => $msg->message,
+                'created_at'  => $msg->created_at,
+            ]));
+
+            $response = curl_exec($ch);
+            if (curl_errno($ch)) {
+                logger()->error("Curl error broadcast: " . curl_error($ch));
+            }
+            curl_close($ch);
+
+            logger()->info("Broadcast response: " . $response);
+        } catch (\Exception $e) {
+            logger()->error("Gagal broadcast ke Socket.IO: " . $e->getMessage());
         }
 
-        $result = DB::transaction(function () use ($request) {
-            $msg = Message::create([
-                'sender_id' => $request->sender_id,
-                'receiver_id' => $request->receiver_id,
-                'message' => $request->message,
-            ]);
+        return $msg;
+    });
 
-            try {
-                Http::post('https://masjid.uika-bogor.ac.id/api/broadcast', [
-                    'sender_id' => $msg->sender_id,
-                    'receiver_id' => $msg->receiver_id,
-                    'message' => $msg->message,
-                    'created_at' => $msg->created_at,
-                ]);
-            } catch (\Exception $e) {
-                logger()->error("Gagal broadcast ke Socket.IO: " . $e->getMessage());
-            }
+    return response()->json([
+        'status' => true,
+        'data' => $result
+    ]);
+}
 
-            return $msg;
-        });
-
-        return response()->json([
-            'status' => true,
-            'data' => $result
-        ]);
-    }
 }
